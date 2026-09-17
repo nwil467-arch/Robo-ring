@@ -21,9 +21,10 @@ function applySoloMobileLayout(){
     if(!s){
       s=d.createElement('style');s.id='solo-mobile-layout-fix';
       s.textContent=`
-        body.mobileDevice.inGame #mobileP1Controls.soloMobileLayout{position:fixed!important;left:0!important;right:0!important;bottom:0!important;width:100%!important;height:100%!important;max-width:none!important;pointer-events:none!important}
-        body.mobileDevice.inGame #mobileP1Controls.soloMobileLayout .mobileJoystick{left:clamp(12px,4vw,34px)!important;right:auto!important;bottom:max(18px,env(safe-area-inset-bottom))!important}
-        body.mobileDevice.inGame #mobileP1Controls.soloMobileLayout .mobileDash{right:clamp(12px,4vw,34px)!important;left:auto!important;bottom:max(18px,env(safe-area-inset-bottom))!important}
+        /* Single-player mobile: controls are pinned to opposite bottom corners of the screen. */
+        body.mobileDevice.inGame #mobileP1Controls.soloMobileLayout{position:fixed!important;inset:0!important;width:100%!important;height:100%!important;max-width:none!important;pointer-events:none!important}
+        body.mobileDevice.inGame #mobileP1Controls.soloMobileLayout .mobileJoystick{position:fixed!important;left:clamp(12px,4vw,34px)!important;right:auto!important;bottom:max(18px,env(safe-area-inset-bottom))!important}
+        body.mobileDevice.inGame #mobileP1Controls.soloMobileLayout .mobileDash{position:fixed!important;right:clamp(12px,4vw,34px)!important;left:auto!important;bottom:max(18px,env(safe-area-inset-bottom))!important}
       `;
       d.head.appendChild(s);
     }
