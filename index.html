@@ -12,7 +12,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0a0c14}
 </style>
 </head>
 <body>
-<iframe id="game" src="./Index.html.html?mobilefix=20260917-2" title="Robo Ring"></iframe>
+<iframe id="game" src="./Index.html.html?mobilefix=20260917-4" title="Robo Ring"></iframe>
 <script>
 const frame=document.getElementById('game');
 let fixTimer=null;
@@ -24,7 +24,6 @@ function applyMobileFixes(){
     if(!s){
       s=d.createElement('style');s.id='launcher-mobile-fix';
       s.textContent=`
-        /* SINGLE PLAYER: joystick bottom-left, dash bottom-right of the actual viewport. */
         body.mobileDevice.inGame #mobileP1Controls.soloMobileLayout{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;max-width:none!important;pointer-events:none!important}
         body.mobileDevice.inGame #mobileP1Controls.soloMobileLayout .mobileJoystick{position:fixed!important;left:max(12px,env(safe-area-inset-left))!important;right:auto!important;bottom:max(18px,env(safe-area-inset-bottom))!important}
         body.mobileDevice.inGame #mobileP1Controls.soloMobileLayout .mobileDash{position:fixed!important;right:max(12px,env(safe-area-inset-right))!important;left:auto!important;bottom:max(18px,env(safe-area-inset-bottom))!important}
@@ -38,18 +37,35 @@ function applyMobileFixes(){
     if(p1)p1.classList.toggle('soloMobileLayout',solo);
     if(solo&&p2)p2.style.setProperty('display','none','important');
 
-    /* TWO PLAYER / P2 DASH FIX: lock P2's dash to the live joystick vector.
-       This prevents the dash from using a reversed/stale facing direction. */
+    // P2 dash: continuously lock the dash direction to the direction of P2's joystick.
+    const p2Joy=d.getElementById('mobileJoystickP2');
+    if(p2Joy&&!p2Joy.dataset.dashDirectionFix){
+      p2Joy.dataset.dashDirectionFix='1';
+      p2Joy.addEventListener('pointermove',()=>{
+        try{
+          const mi=w.eval('mobileInputs'),b=w.eval('B');
+          if(mi&&b&&Math.hypot(Number(mi.p2.x)||0,Number(mi.p2.y)||0)>.08)
+            b.dashAngle=Math.atan2(Number(mi.p2.y)||0,Number(mi.p2.x)||0);
+        }catch(e){}
+      },{passive:true});
+      p2Joy.addEventListener('pointerdown',()=>{
+        try{
+          const mi=w.eval('mobileInputs'),b=w.eval('B');
+          if(mi&&b&&Math.hypot(Number(mi.p2.x)||0,Number(mi.p2.y)||0)>.08)
+            b.dashAngle=Math.atan2(Number(mi.p2.y)||0,Number(mi.p2.x)||0);
+        }catch(e){}
+      },{passive:true});
+    }
     const p2Dash=d.getElementById('mobileDashP2');
     if(p2Dash&&!p2Dash.dataset.directionFix){
       p2Dash.dataset.directionFix='1';
       p2Dash.addEventListener('pointerdown',()=>{
         try{
-          const mi=w.eval('mobileInputs');
-          const b=w.eval('B');
+          const mi=w.eval('mobileInputs'),b=w.eval('B');
           if(mi&&b){
             const x=Number(mi.p2.x)||0,y=Number(mi.p2.y)||0;
             if(Math.hypot(x,y)>.08)b.dashAngle=Math.atan2(y,x);
+            else if(Math.hypot(b.vx,b.vy)>.08)b.dashAngle=Math.atan2(b.vy,b.vx);
             else b.dashAngle=Number(b.a)||0;
           }
         }catch(e){}
